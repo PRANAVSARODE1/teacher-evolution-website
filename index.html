@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Interview Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h1>Teacher Evolution</h1>
+            </div>
+            <p class="subtitle">Interview Portal</p>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="progress-text" id="progressText">Step 1 of 4</span>
+        </div>
+
+        <!-- Interview Form -->
+        <form class="interview-form" id="interviewForm">
+            <!-- Step 1: Personal Information -->
+            <div class="form-step active" id="step1">
+                <h2><i class="fas fa-user"></i> Personal Information</h2>
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="location">Location *</label>
+                        <input type="text" id="location" name="location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="experience">Years of Experience *</label>
+                        <select id="experience" name="experience" required>
+                            <option value="">Select Experience</option>
+                            <option value="0-1">0-1 years</option>
+                            <option value="2-5">2-5 years</option>
+                            <option value="6-10">6-10 years</option>
+                            <option value="10+">10+ years</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Teaching Experience -->
+            <div class="form-step" id="step2">
+                <h2><i class="fas fa-chalkboard-teacher"></i> Teaching Experience</h2>
+                <div class="form-group">
+                    <label for="subjects">Subjects You Teach *</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="subjects" value="Mathematics"> Mathematics</label>
+                        <label><input type="checkbox" name="subjects" value="Science"> Science</label>
+                        <label><input type="checkbox" name="subjects" value="English"> English</label>
+                        <label><input type="checkbox" name="subjects" value="History"> History</label>
+                        <label><input type="checkbox" name="subjects" value="Geography"> Geography</label>
+                        <label><input type="checkbox" name="subjects" value="Computer Science"> Computer Science</label>
+                        <label><input type="checkbox" name="subjects" value="Art"> Art</label>
+                        <label><input type="checkbox" name="subjects" value="Physical Education"> Physical Education</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="gradeLevels">Grade Levels *</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="gradeLevels" value="Elementary"> Elementary (K-5)</label>
+                        <label><input type="checkbox" name="gradeLevels" value="Middle"> Middle School (6-8)</label>
+                        <label><input type="checkbox" name="gradeLevels" value="High"> High School (9-12)</label>
+                        <label><input type="checkbox" name="gradeLevels" value="College"> College/University</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="teachingPhilosophy">Teaching Philosophy *</label>
+                    <textarea id="teachingPhilosophy" name="teachingPhilosophy" rows="4" placeholder="Describe your approach to teaching and student engagement..." required></textarea>
+                </div>
+            </div>
+
+            <!-- Step 3: Interview Questions -->
+            <div class="form-step" id="step3">
+                <h2><i class="fas fa-question-circle"></i> Interview Questions</h2>
+                <div class="form-group">
+                    <label for="motivation">What motivates you to be a teacher? *</label>
+                    <textarea id="motivation" name="motivation" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="challenges">How do you handle challenging students or difficult classroom situations? *</label>
+                    <textarea id="challenges" name="challenges" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="technology">How do you integrate technology in your teaching? *</label>
+                    <textarea id="technology" name="technology" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="goals">What are your professional development goals? *</label>
+                    <textarea id="goals" name="goals" rows="3" required></textarea>
+                </div>
+            </div>
+
+            <!-- Step 4: Additional Information -->
+            <div class="form-step" id="step4">
+                <h2><i class="fas fa-info-circle"></i> Additional Information</h2>
+                <div class="form-group">
+                    <label for="certifications">Certifications & Qualifications</label>
+                    <textarea id="certifications" name="certifications" rows="3" placeholder="List any teaching certifications, degrees, or special qualifications..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="availability">Availability *</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="availability" value="Full-time"> Full-time</label>
+                        <label><input type="checkbox" name="availability" value="Part-time"> Part-time</label>
+                        <label><input type="checkbox" name="availability" value="Substitute"> Substitute Teaching</label>
+                        <label><input type="checkbox" name="availability" value="Online"> Online Teaching</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="references">References</label>
+                    <textarea id="references" name="references" rows="3" placeholder="Please provide 2-3 professional references with contact information..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="additionalInfo">Any additional information you'd like to share?</label>
+                    <textarea id="additionalInfo" name="additionalInfo" rows="3" placeholder="Anything else you'd like us to know about your teaching experience or qualifications..."></textarea>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="form-navigation">
+                <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button type="button" id="nextBtn" class="btn btn-primary">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+                <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;">
+                    <i class="fas fa-paper-plane"></i> Submit Application
+                </button>
+            </div>
+        </form>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage" style="display: none;">
+            <div class="success-content">
+                <i class="fas fa-check-circle"></i>
+                <h2>Application Submitted Successfully!</h2>
+                <p>Thank you for your interest in joining our teaching team. We will review your application and get back to you soon.</p>
+                <button type="button" class="btn btn-primary" onclick="location.reload()">
+                    <i class="fas fa-refresh"></i> Start New Application
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
