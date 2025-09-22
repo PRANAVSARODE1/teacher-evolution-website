@@ -3,171 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Interview Portal</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Teacher Eligibility Assessment Platform</title>
+    <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header class="header">
-            <div class="logo">
-                <i class="fas fa-graduation-cap"></i>
-                <h1>Teacher Evolution</h1>
-            </div>
-            <p class="subtitle">Interview Portal</p>
+            <h1><i class="fas fa-chalkboard-teacher"></i> Teacher Eligibility Assessment Platform</h1>
+            <p>AI-Powered Teaching Performance Evaluation</p>
         </header>
 
-        <!-- Progress Bar -->
-        <div class="progress-container">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <span class="progress-text" id="progressText">Step 1 of 4</span>
-        </div>
-
-        <!-- Interview Form -->
-        <form class="interview-form" id="interviewForm">
-            <!-- Step 1: Personal Information -->
-            <div class="form-step active" id="step1">
-                <h2><i class="fas fa-user"></i> Personal Information</h2>
-                <div class="form-group">
-                    <label for="fullName">Full Name *</label>
-                    <input type="text" id="fullName" name="fullName" required>
-                </div>
-                <div class="form-row">
+        <main class="main-content">
+            <!-- Assessment Setup -->
+            <section class="assessment-setup">
+                <h2>Assessment Configuration</h2>
+                <div class="config-form">
                     <div class="form-group">
-                        <label for="email">Email Address *</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="teacher-name">Teacher Name:</label>
+                        <input type="text" id="teacher-name" placeholder="Enter teacher's name">
                     </div>
                     <div class="form-group">
-                        <label for="phone">Phone Number *</label>
-                        <input type="tel" id="phone" name="phone" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="location">Location *</label>
-                        <input type="text" id="location" name="location" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="experience">Years of Experience *</label>
-                        <select id="experience" name="experience" required>
-                            <option value="">Select Experience</option>
-                            <option value="0-1">0-1 years</option>
-                            <option value="2-5">2-5 years</option>
-                            <option value="6-10">6-10 years</option>
-                            <option value="10+">10+ years</option>
+                        <label for="subject">Subject:</label>
+                        <select id="subject" onchange="toggleOtherSubject()">
+                            <option value="engineering">Engineering</option>
+                            <option value="mathematics">Mathematics</option>
+                            <option value="physics">Physics</option>
+                            <option value="chemistry">Chemistry</option>
+                            <option value="computer-science">Computer Science</option>
+                            <option value="biology">Biology</option>
+                            <option value="english">English</option>
+                            <option value="history">History</option>
+                            <option value="geography">Geography</option>
+                            <option value="economics">Economics</option>
+                            <option value="business-studies">Business Studies</option>
+                            <option value="accounting">Accounting</option>
+                            <option value="art">Art</option>
+                            <option value="music">Music</option>
+                            <option value="physical-education">Physical Education</option>
+                            <option value="psychology">Psychology</option>
+                            <option value="sociology">Sociology</option>
+                            <option value="political-science">Political Science</option>
+                            <option value="philosophy">Philosophy</option>
+                            <option value="environmental-science">Environmental Science</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
-                </div>
-            </div>
-
-            <!-- Step 2: Teaching Experience -->
-            <div class="form-step" id="step2">
-                <h2><i class="fas fa-chalkboard-teacher"></i> Teaching Experience</h2>
-                <div class="form-group">
-                    <label for="subjects">Subjects You Teach *</label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="subjects" value="Mathematics"> Mathematics</label>
-                        <label><input type="checkbox" name="subjects" value="Science"> Science</label>
-                        <label><input type="checkbox" name="subjects" value="English"> English</label>
-                        <label><input type="checkbox" name="subjects" value="History"> History</label>
-                        <label><input type="checkbox" name="subjects" value="Geography"> Geography</label>
-                        <label><input type="checkbox" name="subjects" value="Computer Science"> Computer Science</label>
-                        <label><input type="checkbox" name="subjects" value="Art"> Art</label>
-                        <label><input type="checkbox" name="subjects" value="Physical Education"> Physical Education</label>
+                    <div class="form-group" id="other-subject-group" style="display: none;">
+                        <label for="other-subject">Specify Other Subject:</label>
+                        <input type="text" id="other-subject" placeholder="Enter the specific subject name">
+                    </div>
+                    <div class="form-group">
+                        <label for="institution">Institution:</label>
+                        <input type="text" id="institution" placeholder="School/College name">
+                    </div>
+                    <div class="form-group">
+                        <label for="assessment-duration">Assessment Duration (minutes):</label>
+                        <input type="number" id="assessment-duration" value="15" min="5" max="60">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="gradeLevels">Grade Levels *</label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="gradeLevels" value="Elementary"> Elementary (K-5)</label>
-                        <label><input type="checkbox" name="gradeLevels" value="Middle"> Middle School (6-8)</label>
-                        <label><input type="checkbox" name="gradeLevels" value="High"> High School (9-12)</label>
-                        <label><input type="checkbox" name="gradeLevels" value="College"> College/University</label>
+            </section>
+
+            <!-- Media Controls -->
+            <section class="media-controls">
+                <h2>Media Setup</h2>
+                <div class="media-buttons">
+                    <button id="start-camera" class="btn btn-primary">
+                        <i class="fas fa-video"></i> Start Camera
+                    </button>
+                    <button id="start-microphone" class="btn btn-primary">
+                        <i class="fas fa-microphone"></i> Start Microphone
+                    </button>
+                    <button id="start-assessment" class="btn btn-success" disabled>
+                        <i class="fas fa-play"></i> Start Assessment
+                    </button>
+                </div>
+                <div class="media-status">
+                    <div class="status-item">
+                        <span id="camera-status" class="status-indicator">Camera: Not Started</span>
+                    </div>
+                    <div class="status-item">
+                        <span id="mic-status" class="status-indicator">Microphone: Not Started</span>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="teachingPhilosophy">Teaching Philosophy *</label>
-                    <textarea id="teachingPhilosophy" name="teachingPhilosophy" rows="4" placeholder="Describe your approach to teaching and student engagement..." required></textarea>
-                </div>
-            </div>
-
-            <!-- Step 3: Interview Questions -->
-            <div class="form-step" id="step3">
-                <h2><i class="fas fa-question-circle"></i> Interview Questions</h2>
-                <div class="form-group">
-                    <label for="motivation">What motivates you to be a teacher? *</label>
-                    <textarea id="motivation" name="motivation" rows="3" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="challenges">How do you handle challenging students or difficult classroom situations? *</label>
-                    <textarea id="challenges" name="challenges" rows="3" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="technology">How do you integrate technology in your teaching? *</label>
-                    <textarea id="technology" name="technology" rows="3" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="goals">What are your professional development goals? *</label>
-                    <textarea id="goals" name="goals" rows="3" required></textarea>
-                </div>
-            </div>
-
-            <!-- Step 4: Additional Information -->
-            <div class="form-step" id="step4">
-                <h2><i class="fas fa-info-circle"></i> Additional Information</h2>
-                <div class="form-group">
-                    <label for="certifications">Certifications & Qualifications</label>
-                    <textarea id="certifications" name="certifications" rows="3" placeholder="List any teaching certifications, degrees, or special qualifications..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="availability">Availability *</label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="availability" value="Full-time"> Full-time</label>
-                        <label><input type="checkbox" name="availability" value="Part-time"> Part-time</label>
-                        <label><input type="checkbox" name="availability" value="Substitute"> Substitute Teaching</label>
-                        <label><input type="checkbox" name="availability" value="Online"> Online Teaching</label>
+                
+                <!-- Troubleshooting Section -->
+                <div class="troubleshooting-section" id="troubleshooting-section" style="display: none;">
+                    <h3><i class="fas fa-tools"></i> Troubleshooting</h3>
+                    <div class="troubleshooting-content">
+                        <h4>Microphone Permission Issues:</h4>
+                        <ul>
+                            <li><strong>Chrome/Edge:</strong> Click the lock icon in the address bar → Allow microphone access</li>
+                            <li><strong>Firefox:</strong> Click the shield icon → Allow microphone permissions</li>
+                            <li><strong>Safari:</strong> Safari → Preferences → Websites → Microphone → Allow</li>
+                        </ul>
+                        
+                        <h4>Common Solutions:</h4>
+                        <ul>
+                            <li>Ensure your microphone is connected and working</li>
+                            <li>Close other applications that might be using the microphone</li>
+                            <li>Check your system's privacy settings for microphone access</li>
+                            <li>Try refreshing the page and allowing permissions again</li>
+                            <li>Make sure you're using HTTPS (required for microphone access)</li>
+                        </ul>
+                        
+                        <button id="hide-troubleshooting" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Hide
+                        </button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="references">References</label>
-                    <textarea id="references" name="references" rows="3" placeholder="Please provide 2-3 professional references with contact information..."></textarea>
+                
+                <div class="action-buttons" style="margin-top: 15px;">
+                    <button id="show-troubleshooting" class="btn btn-secondary">
+                        <i class="fas fa-question-circle"></i> Having Issues?
+                    </button>
+                    <button id="reload-ai-models" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i> Reload AI Models
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label for="additionalInfo">Any additional information you'd like to share?</label>
-                    <textarea id="additionalInfo" name="additionalInfo" rows="3" placeholder="Anything else you'd like us to know about your teaching experience or qualifications..."></textarea>
+            </section>
+
+            <!-- Live Assessment -->
+            <section class="live-assessment" id="live-assessment" style="display: none;">
+                <h2>Live Assessment</h2>
+                <div class="assessment-content">
+                    <div class="video-container">
+                        <video id="teacher-video" autoplay muted></video>
+                        <canvas id="teacher-canvas"></canvas>
+                    </div>
+                    <div class="assessment-metrics">
+                        <div class="metric-card">
+                            <h3>Voice Analysis</h3>
+                            <div class="metric-value" id="voice-confidence">Confidence: --</div>
+                            <div class="metric-value" id="voice-volume">Volume: --</div>
+                            <div class="metric-value" id="voice-clarity">Clarity: --</div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Facial Expressions</h3>
+                            <div class="metric-value" id="teacher-emotion">Teacher Emotion: --</div>
+                            <div class="metric-value" id="engagement-level">Engagement: --</div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Teaching Quality</h3>
+                            <div class="metric-value" id="interaction-level">Interaction: --</div>
+                            <div class="metric-value" id="example-usage">Examples: --</div>
+                            <div class="metric-value" id="audibility-score">Audibility: --</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <div class="assessment-controls">
+                    <button id="pause-assessment" class="btn btn-warning">
+                        <i class="fas fa-pause"></i> Pause
+                    </button>
+                    <button id="stop-assessment" class="btn btn-danger">
+                        <i class="fas fa-stop"></i> Stop Assessment
+                    </button>
+                </div>
+            </section>
 
-            <!-- Navigation Buttons -->
-            <div class="form-navigation">
-                <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">
-                    <i class="fas fa-arrow-left"></i> Previous
-                </button>
-                <button type="button" id="nextBtn" class="btn btn-primary">
-                    Next <i class="fas fa-arrow-right"></i>
-                </button>
-                <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;">
-                    <i class="fas fa-paper-plane"></i> Submit Application
-                </button>
-            </div>
-        </form>
-
-        <!-- Success Message -->
-        <div class="success-message" id="successMessage" style="display: none;">
-            <div class="success-content">
-                <i class="fas fa-check-circle"></i>
-                <h2>Application Submitted Successfully!</h2>
-                <p>Thank you for your interest in joining our teaching team. We will review your application and get back to you soon.</p>
-                <button type="button" class="btn btn-primary" onclick="location.reload()">
-                    <i class="fas fa-refresh"></i> Start New Application
-                </button>
-            </div>
-        </div>
+            <!-- Assessment Report -->
+            <section class="assessment-report" id="assessment-report" style="display: none;">
+                <h2>Assessment Report</h2>
+                <div class="report-content">
+                    <div class="report-summary">
+                        <h3>Overall Score</h3>
+                        <div class="score-circle">
+                            <span id="overall-score">--</span>
+                            <span class="score-label">/100</span>
+                        </div>
+                        <div class="eligibility-status" id="eligibility-status">
+                            <span class="status-badge">Assessment Required</span>
+                        </div>
+                    </div>
+                    <div class="detailed-metrics">
+                        <h3>Detailed Analysis</h3>
+                        <div class="metric-breakdown">
+                            <div class="breakdown-item">
+                                <span class="metric-name">Voice Confidence</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="confidence-progress"></div>
+                                </div>
+                                <span class="metric-score" id="confidence-score">--</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="metric-name">Audibility</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="audibility-progress"></div>
+                                </div>
+                                <span class="metric-score" id="audibility-score-final">--</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="metric-name">Student Interaction</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="interaction-progress"></div>
+                                </div>
+                                <span class="metric-score" id="interaction-score">--</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="metric-name">Example Usage</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="example-progress"></div>
+                                </div>
+                                <span class="metric-score" id="example-score">--</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="metric-name">Engagement Level</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="engagement-progress"></div>
+                                </div>
+                                <span class="metric-score" id="engagement-score">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recommendations">
+                        <h3>Recommendations</h3>
+                        <ul id="recommendations-list">
+                            <!-- Recommendations will be populated dynamically -->
+                        </ul>
+                    </div>
+                    <div class="report-actions">
+                        <button id="download-report" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Download Report
+                        </button>
+                        <button id="new-assessment" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> New Assessment
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
-    <script src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh"></script>
+    <script src="script.js"></script>
 </body>
 </html>
+
