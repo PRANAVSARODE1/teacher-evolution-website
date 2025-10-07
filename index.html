@@ -3,230 +3,429 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Eligibility Assessment Platform</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Teacher Assessment Platform</title>
+    <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="AI-Powered Teacher Assessment Platform for evaluating teaching performance">
+    <meta name="keywords" content="teacher assessment, education, AI, teaching evaluation">
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1><i class="fas fa-chalkboard-teacher"></i> Teacher Eligibility Assessment Platform</h1>
-            <p>AI-Powered Teaching Performance Evaluation</p>
-        </header>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>TeacherEval</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#dashboard" class="nav-link active">Dashboard</a>
+                <a href="#assessments" class="nav-link">Assessments</a>
+                <a href="#reports" class="nav-link">Reports</a>
+                <div class="nav-user">
+                    <img src="https://via.placeholder.com/32x32/667eea/ffffff?text=U" alt="User" class="user-avatar">
+                    <span class="user-name">Admin</span>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-        <main class="main-content">
-            <!-- Assessment Setup -->
-            <section class="assessment-setup">
-                <h2>Assessment Configuration</h2>
-                <div class="config-form">
-                    <div class="form-group">
-                        <label for="teacher-name">Teacher Name:</label>
-                        <input type="text" id="teacher-name" placeholder="Enter teacher's name">
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Assessment Tools</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active" data-section="setup">
+                    <i class="fas fa-cog"></i>
+                    <span>Setup</span>
+                </a>
+                <a href="#" class="sidebar-link" data-section="live">
+                    <i class="fas fa-video"></i>
+                    <span>Live Assessment</span>
+                </a>
+                <a href="#" class="sidebar-link" data-section="results">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Results</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Setup Section -->
+            <section id="setup-section" class="content-section active">
+                <div class="section-header">
+                    <h1>Assessment Configuration</h1>
+                    <p>Configure your teacher assessment session</p>
+                </div>
+
+                <div class="config-grid">
+                    <!-- Teacher Information Card -->
+                    <div class="config-card">
+                        <div class="card-header">
+                            <i class="fas fa-user"></i>
+                            <h3>Teacher Information</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label for="teacher-name">Teacher Name *</label>
+                                <input type="text" id="teacher-name" placeholder="Enter teacher's full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="institution">Institution *</label>
+                                <input type="text" id="institution" placeholder="School/College name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="experience">Years of Experience</label>
+                                <select id="experience">
+                                    <option value="0-1">0-1 years</option>
+                                    <option value="2-5">2-5 years</option>
+                                    <option value="6-10">6-10 years</option>
+                                    <option value="10+">10+ years</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="subject">Subject:</label>
-                        <select id="subject" onchange="toggleOtherSubject()">
-                            <option value="engineering">Engineering</option>
-                            <option value="mathematics">Mathematics</option>
-                            <option value="physics">Physics</option>
-                            <option value="chemistry">Chemistry</option>
-                            <option value="computer-science">Computer Science</option>
-                            <option value="biology">Biology</option>
-                            <option value="english">English</option>
-                            <option value="history">History</option>
-                            <option value="geography">Geography</option>
-                            <option value="economics">Economics</option>
-                            <option value="business-studies">Business Studies</option>
-                            <option value="accounting">Accounting</option>
-                            <option value="art">Art</option>
-                            <option value="music">Music</option>
-                            <option value="physical-education">Physical Education</option>
-                            <option value="psychology">Psychology</option>
-                            <option value="sociology">Sociology</option>
-                            <option value="political-science">Political Science</option>
-                            <option value="philosophy">Philosophy</option>
-                            <option value="environmental-science">Environmental Science</option>
-                            <option value="other">Other</option>
-                        </select>
+
+                    <!-- Subject & Duration Card -->
+                    <div class="config-card">
+                        <div class="card-header">
+                            <i class="fas fa-book"></i>
+                            <h3>Assessment Details</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label for="subject">Subject *</label>
+                                <select id="subject" onchange="toggleOtherSubject()">
+                                    <option value="engineering">Engineering</option>
+                                    <option value="mathematics">Mathematics</option>
+                                    <option value="physics">Physics</option>
+                                    <option value="chemistry">Chemistry</option>
+                                    <option value="computer-science">Computer Science</option>
+                                    <option value="biology">Biology</option>
+                                    <option value="english">English</option>
+                                    <option value="history">History</option>
+                                    <option value="geography">Geography</option>
+                                    <option value="economics">Economics</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="other-subject-group" style="display: none;">
+                                <label for="other-subject">Specify Subject</label>
+                                <input type="text" id="other-subject" placeholder="Enter specific subject">
+                            </div>
+                            <div class="form-group">
+                                <label for="assessment-duration">Duration (minutes)</label>
+                                <div class="duration-selector">
+                                    <button type="button" class="duration-btn" data-duration="10">10m</button>
+                                    <button type="button" class="duration-btn active" data-duration="15">15m</button>
+                                    <button type="button" class="duration-btn" data-duration="20">20m</button>
+                                    <button type="button" class="duration-btn" data-duration="30">30m</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group" id="other-subject-group" style="display: none;">
-                        <label for="other-subject">Specify Other Subject:</label>
-                        <input type="text" id="other-subject" placeholder="Enter the specific subject name">
+
+                    <!-- Assessment Criteria Card -->
+                    <div class="config-card">
+                        <div class="card-header">
+                            <i class="fas fa-list-check"></i>
+                            <h3>Assessment Criteria</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="criteria-list">
+                                <div class="criteria-item">
+                                    <input type="checkbox" id="voice-confidence" checked>
+                                    <label for="voice-confidence">Voice Confidence & Clarity</label>
+                                </div>
+                                <div class="criteria-item">
+                                    <input type="checkbox" id="facial-expressions" checked>
+                                    <label for="facial-expressions">Facial Expressions & Engagement</label>
+                                </div>
+                                <div class="criteria-item">
+                                    <input type="checkbox" id="interaction" checked>
+                                    <label for="interaction">Student Interaction</label>
+                                </div>
+                                <div class="criteria-item">
+                                    <input type="checkbox" id="examples" checked>
+                                    <label for="examples">Use of Examples</label>
+                                </div>
+                                <div class="criteria-item">
+                                    <input type="checkbox" id="audibility" checked>
+                                    <label for="audibility">Audibility & Projection</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="institution">Institution:</label>
-                        <input type="text" id="institution" placeholder="School/College name">
+                </div>
+
+                <!-- Media Setup Card -->
+                <div class="media-setup-card">
+                    <div class="card-header">
+                        <i class="fas fa-video"></i>
+                        <h3>Media Setup</h3>
                     </div>
-                    <div class="form-group">
-                        <label for="assessment-duration">Assessment Duration (minutes):</label>
-                        <input type="number" id="assessment-duration" value="15" min="5" max="60">
+                    <div class="card-content">
+                        <div class="media-controls">
+                            <div class="media-button-group">
+                                <button id="start-camera" class="media-btn primary">
+                                    <i class="fas fa-video"></i>
+                                    <span>Start Camera</span>
+                                </button>
+                                <button id="start-microphone" class="media-btn primary">
+                                    <i class="fas fa-microphone"></i>
+                                    <span>Start Microphone</span>
+                                </button>
+                            </div>
+                            
+                            <div class="media-status-grid">
+                                <div class="status-item">
+                                    <div class="status-indicator" id="camera-status">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Camera: Not Started</span>
+                                    </div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-indicator" id="mic-status">
+                                        <i class="fas fa-circle"></i>
+                                        <span>Microphone: Not Started</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="start-assessment-container">
+                                <button id="start-assessment" class="start-btn" disabled>
+                                    <i class="fas fa-play"></i>
+                                    <span>Start Assessment</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Media Controls -->
-            <section class="media-controls">
-                <h2>Media Setup</h2>
-                <div class="media-buttons">
-                    <button id="start-camera" class="btn btn-primary">
-                        <i class="fas fa-video"></i> Start Camera
-                    </button>
-                    <button id="start-microphone" class="btn btn-primary">
-                        <i class="fas fa-microphone"></i> Start Microphone
-                    </button>
-                    <button id="start-assessment" class="btn btn-success" disabled>
-                        <i class="fas fa-play"></i> Start Assessment
-                    </button>
+            <!-- Live Assessment Section -->
+            <section id="live-section" class="content-section">
+                <div class="section-header">
+                    <h1>Live Assessment</h1>
+                    <p>Real-time teacher performance evaluation</p>
                 </div>
-                <div class="media-status">
-                    <div class="status-item">
-                        <span id="camera-status" class="status-indicator">Camera: Not Started</span>
+
+                <div class="assessment-layout">
+                    <div class="video-panel">
+                        <div class="video-container">
+                            <video id="teacher-video" autoplay muted playsinline></video>
+                            <canvas id="teacher-canvas"></canvas>
+                            <div class="video-overlay">
+                                <div class="recording-indicator">
+                                    <i class="fas fa-circle"></i>
+                                    <span>REC</span>
+                                </div>
+                                <div class="timer" id="assessment-timer">00:00</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="status-item">
-                        <span id="mic-status" class="status-indicator">Microphone: Not Started</span>
+
+                    <div class="metrics-panel">
+                        <div class="metrics-grid">
+                            <!-- Voice Analysis -->
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <i class="fas fa-microphone"></i>
+                                    <h4>Voice Analysis</h4>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-item">
+                                        <span class="metric-label">Confidence</span>
+                                        <div class="metric-bar">
+                                            <div class="metric-fill" id="confidence-bar"></div>
+                                            <span class="metric-value" id="voice-confidence">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">Volume</span>
+                                        <div class="metric-bar">
+                                            <div class="metric-fill" id="volume-bar"></div>
+                                            <span class="metric-value" id="voice-volume">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">Clarity</span>
+                                        <div class="metric-bar">
+                                            <div class="metric-fill" id="clarity-bar"></div>
+                                            <span class="metric-value" id="voice-clarity">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Facial Expressions -->
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <i class="fas fa-smile"></i>
+                                    <h4>Facial Expressions</h4>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-item">
+                                        <span class="metric-label">Emotion</span>
+                                        <span class="metric-value emotion" id="teacher-emotion">Neutral</span>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">Engagement</span>
+                                        <div class="metric-bar">
+                                            <div class="metric-fill" id="engagement-bar"></div>
+                                            <span class="metric-value" id="engagement-level">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Teaching Quality -->
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    <h4>Teaching Quality</h4>
+                                </div>
+                                <div class="metric-content">
+                                    <div class="metric-item">
+                                        <span class="metric-label">Interaction</span>
+                                        <div class="metric-bar">
+                                            <div class="metric-fill" id="interaction-bar"></div>
+                                            <span class="metric-value" id="interaction-level">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">Examples</span>
+                                        <div class="metric-bar">
+                                            <div class="metric-fill" id="examples-bar"></div>
+                                            <span class="metric-value" id="example-usage">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">Audibility</span>
+                                        <div class="metric-bar">
+                                            <div class="metric-fill" id="audibility-bar"></div>
+                                            <span class="metric-value" id="audibility-score">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="assessment-controls">
+                            <button id="pause-assessment" class="control-btn warning">
+                                <i class="fas fa-pause"></i>
+                                <span>Pause</span>
+                            </button>
+                            <button id="stop-assessment" class="control-btn danger">
+                                <i class="fas fa-stop"></i>
+                                <span>Stop Assessment</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Troubleshooting Section -->
-                <div class="troubleshooting-section" id="troubleshooting-section" style="display: none;">
-                    <h3><i class="fas fa-tools"></i> Troubleshooting</h3>
-                    <div class="troubleshooting-content">
-                        <h4>Microphone Permission Issues:</h4>
-                        <ul>
-                            <li><strong>Chrome/Edge:</strong> Click the lock icon in the address bar → Allow microphone access</li>
-                            <li><strong>Firefox:</strong> Click the shield icon → Allow microphone permissions</li>
-                            <li><strong>Safari:</strong> Safari → Preferences → Websites → Microphone → Allow</li>
-                        </ul>
-                        
-                        <h4>Common Solutions:</h4>
-                        <ul>
-                            <li>Ensure your microphone is connected and working</li>
-                            <li>Close other applications that might be using the microphone</li>
-                            <li>Check your system's privacy settings for microphone access</li>
-                            <li>Try refreshing the page and allowing permissions again</li>
-                            <li>Make sure you're using HTTPS (required for microphone access)</li>
-                        </ul>
-                        
-                        <button id="hide-troubleshooting" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Hide
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="action-buttons" style="margin-top: 15px;">
-                    <button id="show-troubleshooting" class="btn btn-secondary">
-                        <i class="fas fa-question-circle"></i> Having Issues?
-                    </button>
-                    <button id="reload-ai-models" class="btn btn-secondary">
-                        <i class="fas fa-sync-alt"></i> Reload AI Models
-                    </button>
                 </div>
             </section>
 
-            <!-- Live Assessment -->
-            <section class="live-assessment" id="live-assessment" style="display: none;">
-                <h2>Live Assessment</h2>
-                <div class="assessment-content">
-                    <div class="video-container">
-                        <video id="teacher-video" autoplay muted></video>
-                        <canvas id="teacher-canvas"></canvas>
-                    </div>
-                    <div class="assessment-metrics">
-                        <div class="metric-card">
-                            <h3>Voice Analysis</h3>
-                            <div class="metric-value" id="voice-confidence">Confidence: --</div>
-                            <div class="metric-value" id="voice-volume">Volume: --</div>
-                            <div class="metric-value" id="voice-clarity">Clarity: --</div>
-                        </div>
-                        <div class="metric-card">
-                            <h3>Facial Expressions</h3>
-                            <div class="metric-value" id="teacher-emotion">Teacher Emotion: --</div>
-                            <div class="metric-value" id="engagement-level">Engagement: --</div>
-                        </div>
-                        <div class="metric-card">
-                            <h3>Teaching Quality</h3>
-                            <div class="metric-value" id="interaction-level">Interaction: --</div>
-                            <div class="metric-value" id="example-usage">Examples: --</div>
-                            <div class="metric-value" id="audibility-score">Audibility: --</div>
-                        </div>
-                    </div>
+            <!-- Results Section -->
+            <section id="results-section" class="content-section">
+                <div class="section-header">
+                    <h1>Assessment Results</h1>
+                    <p>Detailed performance analysis and recommendations</p>
                 </div>
-                <div class="assessment-controls">
-                    <button id="pause-assessment" class="btn btn-warning">
-                        <i class="fas fa-pause"></i> Pause
-                    </button>
-                    <button id="stop-assessment" class="btn btn-danger">
-                        <i class="fas fa-stop"></i> Stop Assessment
-                    </button>
-                </div>
-            </section>
 
-            <!-- Assessment Report -->
-            <section class="assessment-report" id="assessment-report" style="display: none;">
-                <h2>Assessment Report</h2>
-                <div class="report-content">
-                    <div class="report-summary">
-                        <h3>Overall Score</h3>
-                        <div class="score-circle">
-                            <span id="overall-score">--</span>
-                            <span class="score-label">/100</span>
+                <div class="results-layout">
+                    <!-- Overall Score Card -->
+                    <div class="score-card">
+                        <div class="score-header">
+                            <h3>Overall Score</h3>
+                            <div class="score-circle">
+                                <div class="score-number" id="overall-score">--</div>
+                                <div class="score-label">/ 100</div>
+                            </div>
                         </div>
-                        <div class="eligibility-status" id="eligibility-status">
-                            <span class="status-badge">Assessment Required</span>
+                        <div class="eligibility-badge" id="eligibility-status">
+                            <span class="status-text">Assessment Required</span>
                         </div>
                     </div>
-                    <div class="detailed-metrics">
-                        <h3>Detailed Analysis</h3>
-                        <div class="metric-breakdown">
+
+                    <!-- Detailed Metrics -->
+                    <div class="detailed-metrics-card">
+                        <div class="card-header">
+                            <h3>Detailed Analysis</h3>
+                        </div>
+                        <div class="metrics-breakdown">
                             <div class="breakdown-item">
-                                <span class="metric-name">Voice Confidence</span>
+                                <div class="breakdown-label">
+                                    <span>Voice Confidence</span>
+                                    <span class="breakdown-score" id="confidence-score">--</span>
+                                </div>
                                 <div class="progress-bar">
                                     <div class="progress-fill" id="confidence-progress"></div>
                                 </div>
-                                <span class="metric-score" id="confidence-score">--</span>
                             </div>
                             <div class="breakdown-item">
-                                <span class="metric-name">Audibility</span>
+                                <div class="breakdown-label">
+                                    <span>Audibility</span>
+                                    <span class="breakdown-score" id="audibility-score-final">--</span>
+                                </div>
                                 <div class="progress-bar">
                                     <div class="progress-fill" id="audibility-progress"></div>
                                 </div>
-                                <span class="metric-score" id="audibility-score-final">--</span>
                             </div>
                             <div class="breakdown-item">
-                                <span class="metric-name">Student Interaction</span>
+                                <div class="breakdown-label">
+                                    <span>Student Interaction</span>
+                                    <span class="breakdown-score" id="interaction-score">--</span>
+                                </div>
                                 <div class="progress-bar">
                                     <div class="progress-fill" id="interaction-progress"></div>
                                 </div>
-                                <span class="metric-score" id="interaction-score">--</span>
                             </div>
                             <div class="breakdown-item">
-                                <span class="metric-name">Example Usage</span>
+                                <div class="breakdown-label">
+                                    <span>Example Usage</span>
+                                    <span class="breakdown-score" id="example-score">--</span>
+                                </div>
                                 <div class="progress-bar">
                                     <div class="progress-fill" id="example-progress"></div>
                                 </div>
-                                <span class="metric-score" id="example-score">--</span>
                             </div>
                             <div class="breakdown-item">
-                                <span class="metric-name">Engagement Level</span>
+                                <div class="breakdown-label">
+                                    <span>Engagement Level</span>
+                                    <span class="breakdown-score" id="engagement-score">--</span>
+                                </div>
                                 <div class="progress-bar">
                                     <div class="progress-fill" id="engagement-progress"></div>
                                 </div>
-                                <span class="metric-score" id="engagement-score">--</span>
                             </div>
                         </div>
                     </div>
-                    <div class="recommendations">
-                        <h3>Recommendations</h3>
-                        <ul id="recommendations-list">
-                            <!-- Recommendations will be populated dynamically -->
-                        </ul>
+
+                    <!-- Recommendations -->
+                    <div class="recommendations-card">
+                        <div class="card-header">
+                            <h3>Recommendations</h3>
+                        </div>
+                        <div class="recommendations-content">
+                            <ul id="recommendations-list">
+                                <li>Complete an assessment to receive personalized recommendations.</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="report-actions">
-                        <button id="download-report" class="btn btn-primary">
-                            <i class="fas fa-download"></i> Download Report
+
+                    <!-- Action Buttons -->
+                    <div class="results-actions">
+                        <button id="download-report" class="action-btn primary">
+                            <i class="fas fa-download"></i>
+                            <span>Download Report</span>
                         </button>
-                        <button id="new-assessment" class="btn btn-secondary">
-                            <i class="fas fa-plus"></i> New Assessment
+                        <button id="new-assessment" class="action-btn secondary">
+                            <i class="fas fa-plus"></i>
+                            <span>New Assessment</span>
                         </button>
                     </div>
                 </div>
@@ -234,10 +433,13 @@
         </main>
     </div>
 
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh"></script>
-    <script src="script.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
-

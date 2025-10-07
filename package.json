@@ -1,0 +1,25 @@
+{
+  "name": "teacher-assessment-platform",
+  "version": "1.0.0",
+  "description": "AI-Powered Teacher Assessment Platform",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "echo 'Deploy to GitHub Pages'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/teacher-assessment-platform.git"
+  },
+  "keywords": [
+    "teacher",
+    "assessment",
+    "education",
+    "AI",
+    "teaching"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "homepage": "https://yourusername.github.io/teacher-assessment-platform"
+}

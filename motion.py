@@ -9,6 +9,8 @@ import ssl
 import socketserver
 import os
 import sys
+import ipaddress
+import argparse
 
 # Configuration
 PORT = 8443
@@ -62,7 +64,7 @@ def create_self_signed_cert():
         ).add_extension(
             x509.SubjectAlternativeName([
                 x509.DNSName("localhost"),
-                x509.IPAddress("127.0.0.1"),
+                x509.IPAddress(ipaddress.IPv4Address("127.0.0.1")),
             ]),
             critical=False,
         ).sign(private_key, hashes.SHA256())
@@ -83,13 +85,27 @@ def create_self_signed_cert():
         
     except ImportError:
         print("❌ cryptography library not found. Installing...")
-        os.system("pip install cryptography")
-        return create_self_signed_cert()
+        try:
+            import subprocess
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "cryptography"])
+            return create_self_signed_cert()
+        except Exception as install_error:
+            print(f"❌ Failed to install cryptography: {install_error}")
+            return False
     except Exception as e:
         print(f"❌ Error creating certificate: {e}")
         return False
 
 def main():
+    global PORT
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Teacher Eligibility Assessment Platform Server')
+    parser.add_argument('--port', type=int, default=8443, help='Port number to run the server on (default: 8443)')
+    args = parser.parse_args()
+    
+    PORT = args.port
+    
     print("🚀 Starting Teacher Eligibility Assessment Platform Server")
     print("=" * 60)
     
@@ -112,7 +128,7 @@ def main():
             print(f"✅ Server running at: https://127.0.0.1:{PORT}")
             print("=" * 60)
             print("📋 Instructions:")
-            print("1. Open your browser and go to: https://localhost:8443")
+            print(f"1. Open your browser and go to: https://localhost:{PORT}")
             print("2. Click 'Advanced' if you see a security warning")
             print("3. Click 'Proceed to localhost (unsafe)'")
             print("4. Allow camera and microphone permissions when prompted")
@@ -124,6 +140,15 @@ def main():
             
     except KeyboardInterrupt:
         print("\n🛑 Server stopped by user")
+    except PermissionError:
+        print(f"❌ Permission denied on port {PORT}. Try using a different port or run as administrator.")
+        print(f"💡 Alternative: python motion.py --port 8444")
+    except OSError as e:
+        if "Address already in use" in str(e):
+            print(f"❌ Port {PORT} is already in use. Try using a different port.")
+            print(f"💡 Alternative: python motion.py --port 8444")
+        else:
+            print(f"❌ Network error: {e}")
     except Exception as e:
         print(f"❌ Error starting server: {e}")
         print("\n💡 Alternative: Use a simple HTTP server for testing:")
