@@ -16,7 +16,7 @@ import sys
 import logging
 import argparse
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import ssl
 import threading
 import time
@@ -105,7 +105,35 @@ class AssessmentResult(BaseModel):
     overall_score: float
     eligibility: str
     recommendations: List[Dict[str, str]]
-    detailed_analysis: Dict[str, any]
+    detailed_analysis: Dict[str, Any]
+
+# API response models
+class CreateAssessmentResponse(BaseModel):
+    success: bool
+    assessment_id: str
+
+class GenericMessageResponse(BaseModel):
+    success: bool
+    message: str
+
+class AnalysisResponse(BaseModel):
+    success: bool
+    analysis: Dict[str, Any]
+
+class CompleteAssessmentResponse(BaseModel):
+    success: bool
+    result: AssessmentResult
+
+class AssessmentSummary(BaseModel):
+    id: str
+    teacher_name: str
+    teacher_email: Optional[str]
+    institution: str
+    subject: str
+    duration: int
+    status: str
+    overall_score: float
+    eligibility: str
 
 # Database Manager
 class DatabaseManager:
@@ -290,9 +318,9 @@ class AIAnalysisEngine:
     def _calculate_teaching_metrics(self, voice_metrics: Dict, facial_metrics: Dict) -> Dict:
         """Calculate teaching quality metrics"""
         # Simulate teaching metrics based on voice and facial data
-        interaction_score = min(100, (voice_metrics.get('confidence', 50) + facial_metrics.get('engagement', 50)) / 2)
+        interaction_score = min(100, (voice_metrics.get('confidence', 50) + facial_metrics.get('engagement_level', 50)) / 2)
         example_usage = min(100, voice_metrics.get('clarity', 50) + 20)
-        student_engagement = min(100, facial_metrics.get('engagement', 50) + 15)
+        student_engagement = min(100, facial_metrics.get('engagement_level', 50) + 15)
         
         return {
             'interaction_level': round(interaction_score, 1),
@@ -591,9 +619,17 @@ if FASTAPI_AVAILABLE:
     # API Routes
     @app.get("/")
     async def read_root():
-        return HTMLResponse(content=open("index.html").read(), status_code=200)
+        try:
+            if not os.path.exists("index.html"):
+                logger.error("❌ index.html not found")
+                return JSONResponse(status_code=404, content={"success": False, "error": "index.html not found"})
+            with open("index.html", "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read(), status_code=200)
+        except Exception as e:
+            logger.error(f"❌ Error reading index.html: {e}")
+            return JSONResponse(status_code=500, content={"success": False, "error": "Failed to load index.html"})
     
-    @app.post("/api/assessments/create")
+    @app.post("/api/assessments/create", response_model=CreateAssessmentResponse)
     async def create_assessment(assessment: AssessmentRequest):
         try:
             assessment_id = db.create_assessment(assessment)
@@ -602,7 +638,7 @@ if FASTAPI_AVAILABLE:
             logger.error(f"❌ Error creating assessment: {e}")
             raise HTTPException(status_code=500, detail="Failed to create assessment")
     
-    @app.post("/api/assessments/{assessment_id}/start")
+    @app.post("/api/assessments/{assessment_id}/start", response_model=GenericMessageResponse)
     async def start_assessment(assessment_id: str):
         try:
             db.update_assessment_status(assessment_id, "in-progress")
@@ -611,7 +647,7 @@ if FASTAPI_AVAILABLE:
             logger.error(f"❌ Error starting assessment: {e}")
             raise HTTPException(status_code=500, detail="Failed to start assessment")
     
-    @app.post("/api/assessments/{assessment_id}/data")
+    @app.post("/api/assessments/{assessment_id}/data", response_model=AnalysisResponse)
     async def save_assessment_data(assessment_id: str, data: AssessmentData):
         try:
             db.save_assessment_data(data)
@@ -630,7 +666,7 @@ if FASTAPI_AVAILABLE:
             logger.error(f"❌ Error saving assessment data: {e}")
             raise HTTPException(status_code=500, detail="Failed to save assessment data")
     
-    @app.post("/api/assessments/{assessment_id}/complete")
+    @app.post("/api/assessments/{assessment_id}/complete", response_model=CompleteAssessmentResponse)
     async def complete_assessment(assessment_id: str):
         try:
             # Generate final report
@@ -645,7 +681,7 @@ if FASTAPI_AVAILABLE:
             logger.error(f"❌ Error completing assessment: {e}")
             raise HTTPException(status_code=500, detail="Failed to complete assessment")
     
-    @app.get("/api/assessments/{assessment_id}")
+    @app.get("/api/assessments/{assessment_id}", response_model=AssessmentSummary)
     async def get_assessment(assessment_id: str):
         try:
             conn = sqlite3.connect(db.db_file)
