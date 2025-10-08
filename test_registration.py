@@ -11,7 +11,7 @@ def test_registration():
     """Test the registration endpoint"""
     base_url = "http://localhost:8080"
     
-    print("🧪 Testing Account Registration")
+    print("Testing Account Registration")
     print("=" * 40)
     
     # Test data
@@ -27,9 +27,9 @@ def test_registration():
         print("1. Testing health endpoint...")
         health_response = requests.get(f"{base_url}/health", timeout=5)
         if health_response.status_code == 200:
-            print("✅ Health check passed")
+            print("Health check passed")
         else:
-            print("❌ Health check failed")
+            print("Health check failed")
             return False
         
         # Test registration
@@ -47,22 +47,22 @@ def test_registration():
         if reg_response.status_code == 200:
             data = reg_response.json()
             if data.get('success'):
-                print("✅ Registration successful!")
+                print("Registration successful!")
                 print(f"User ID: {data.get('user_id')}")
                 return True
             else:
-                print("❌ Registration failed - no success flag")
+                print("Registration failed - no success flag")
                 return False
         else:
-            print("❌ Registration failed")
+            print("Registration failed")
             return False
             
     except requests.exceptions.ConnectionError:
-        print("❌ Cannot connect to backend server")
+        print("Cannot connect to backend server")
         print("Make sure the backend is running on port 8080")
         return False
     except Exception as e:
-        print(f"❌ Test failed with error: {e}")
+        print(f"Test failed with error: {e}")
         return False
 
 def test_duplicate_registration():
@@ -87,14 +87,14 @@ def test_duplicate_registration():
         )
         
         if reg_response.status_code == 409:
-            print("✅ Duplicate registration correctly rejected")
+            print("Duplicate registration correctly rejected")
             return True
         else:
-            print(f"❌ Expected 409 status, got {reg_response.status_code}")
+            print(f"Expected 409 status, got {reg_response.status_code}")
             return False
             
     except Exception as e:
-        print(f"❌ Duplicate test failed: {e}")
+        print(f"Duplicate test failed: {e}")
         return False
 
 if __name__ == '__main__':
@@ -110,6 +110,6 @@ if __name__ == '__main__':
     success2 = test_duplicate_registration()
     
     if success1 and success2:
-        print("\n🎉 All tests passed! Registration is working correctly.")
+        print("\nAll tests passed! Registration is working correctly.")
     else:
-        print("\n❌ Some tests failed. Check the backend server.")
+        print("\nSome tests failed. Check the backend server.")

@@ -29,11 +29,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # MongoDB connection
 try:
-    client = pymongo.MongoClient(MONGODB_URI)
+    client = pymongo.MongoClient(MONGODB_URI, serverSelectionTimeoutMS=5000)
     db = client[MONGO_DB_NAME]
-    print("✅ Connected to MongoDB")
+    print("Connected to MongoDB")
 except Exception as e:
-    print(f"❌ MongoDB connection failed: {e}")
+    print(f"MongoDB connection failed: {e}")
     db = None
 
 # Helper functions
@@ -451,9 +451,9 @@ def get_criteria(org):
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    print("🚀 Starting Flask Teacher Assessment Backend")
-    print(f"📁 Upload folder: {UPLOAD_FOLDER}")
-    print(f"🗄️  MongoDB: {'Connected' if db else 'Disconnected'}")
+    print("Starting Flask Teacher Assessment Backend")
+    print(f"Upload folder: {UPLOAD_FOLDER}")
+    print(f"MongoDB: {'Connected' if db is not None else 'Disconnected'}")
     app.run(host='0.0.0.0', port=8080, debug=True)
 
 
