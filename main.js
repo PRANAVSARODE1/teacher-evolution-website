@@ -2,6 +2,8 @@
 class TeacherAssessmentPlatform {
     constructor() {
         this.isAssessmentRunning = false;
+        this.isAssessmentPaused = false;
+        this.elapsedBeforePause = 0;
         this.assessmentData = {
             teacherInfo: null,
             criteria: null,
@@ -295,7 +297,11 @@ class TeacherAssessmentPlatform {
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
+                const target = link.dataset.section || 'setup';
+                this.showSection(target);
                 this.updateActiveNavLink(link);
+                const sidebarLink = document.querySelector(`.sidebar-link[data-section="${target}"]`);
+                if (sidebarLink) this.updateActiveSidebarLink(sidebarLink);
             });
         });
 
@@ -370,12 +376,45 @@ class TeacherAssessmentPlatform {
             const video = document.getElementById('teacher-video');
             const canvas = document.getElementById('teacher-canvas');
             const ctx = canvas.getContext('2d');
-            
-            this.mediaStream = await navigator.mediaDevices.getUserMedia({
+            const cameraBtn = document.getElementById('start-camera');
+
+            // If camera is already active, turn it off (toggle)
+            const hasActiveVideo = this.mediaStream && this.mediaStream.getVideoTracks().some(t => t.readyState === 'live');
+            if (hasActiveVideo) {
+                this.mediaStream.getVideoTracks().forEach(track => track.stop());
+                if (video.srcObject) {
+                    // Keep audio if present; remove only if no tracks remain
+                    const remainingTracks = this.mediaStream.getTracks().filter(t => t.readyState === 'live');
+                    if (remainingTracks.length === 0) {
+                        video.srcObject = null;
+                        this.mediaStream = null;
+                    }
+                }
+                const statusElement = document.getElementById('camera-status');
+                statusElement.innerHTML = '<i class="fas fa-circle"></i><span>Camera: Not Started</span>';
+                statusElement.classList.remove('active', 'error');
+                if (cameraBtn) {
+                    cameraBtn.innerHTML = '<i class="fas fa-video"></i><span>Start Camera</span>';
+                }
+                this.disableStartAssessmentIfNotReady();
+                this.showNotification('Camera turned off.', 'info');
+                return;
+            }
+
+            // Start (or re-start) camera
+            this.mediaStream = this.mediaStream || await navigator.mediaDevices.getUserMedia({
                 video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
                 audio: true
             });
-            
+
+            // If stream exists but no active video track, add one
+            if (!this.mediaStream.getVideoTracks().some(t => t.readyState === 'live')) {
+                const newCamStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+                });
+                newCamStream.getVideoTracks().forEach(t => this.mediaStream.addTrack(t));
+            }
+
             video.srcObject = this.mediaStream;
             
             video.addEventListener('loadedmetadata', () => {
@@ -386,6 +425,9 @@ class TeacherAssessmentPlatform {
             const statusElement = document.getElementById('camera-status');
             statusElement.innerHTML = '<i class="fas fa-circle" style="color: var(--success-color);"></i><span>Camera: Active</span>';
             statusElement.classList.add('active');
+            if (cameraBtn) {
+                cameraBtn.innerHTML = '<i class="fas fa-video-slash"></i><span>Stop Camera</span>';
+            }
             
             this.showNotification('Camera started successfully!', 'success');
             this.checkMediaReady();
@@ -408,9 +450,37 @@ class TeacherAssessmentPlatform {
 
     async startMicrophone() {
         try {
-            if (!this.mediaStream) {
-                this.showNotification('Please start camera first to get audio stream.', 'warning');
+            const micBtn = document.getElementById('start-microphone');
+
+            // If microphone is active, turn it off (toggle)
+            const micActive = document.getElementById('mic-status').classList.contains('active');
+            if (micActive) {
+                if (this.audioContext && this.audioContext.state !== 'closed') {
+                    this.audioContext.close();
+                }
+                this.audioContext = null;
+                this.analyser = null;
+                this.microphone = null;
+                if (this.mediaStream) {
+                    this.mediaStream.getAudioTracks().forEach(track => track.stop());
+                }
+                const statusElement = document.getElementById('mic-status');
+                statusElement.innerHTML = '<i class="fas fa-circle"></i><span>Microphone: Not Started</span>';
+                statusElement.classList.remove('active', 'error');
+                if (micBtn) {
+                    micBtn.innerHTML = '<i class="fas fa-microphone"></i><span>Start Microphone</span>';
+                }
+                this.disableStartAssessmentIfNotReady();
+                this.showNotification('Microphone turned off.', 'info');
                 return;
+            }
+
+            // Ensure we have a media stream (start camera first acquires audio as well)
+            if (!this.mediaStream) {
+                this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            } else if (this.mediaStream.getAudioTracks().length === 0) {
+                const audioOnly = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioOnly.getAudioTracks().forEach(t => this.mediaStream.addTrack(t));
             }
             
             const audioTracks = this.mediaStream.getAudioTracks();
@@ -429,6 +499,9 @@ class TeacherAssessmentPlatform {
             const statusElement = document.getElementById('mic-status');
             statusElement.innerHTML = '<i class="fas fa-circle" style="color: var(--success-color);"></i><span>Microphone: Active</span>';
             statusElement.classList.add('active');
+            if (micBtn) {
+                micBtn.innerHTML = '<i class="fas fa-microphone-slash"></i><span>Stop Microphone</span>';
+            }
             
             this.showNotification('Microphone started successfully!', 'success');
             this.checkMediaReady();
@@ -456,6 +529,14 @@ class TeacherAssessmentPlatform {
         if (cameraActive && micActive) {
             document.getElementById('start-assessment').disabled = false;
             this.showNotification('Ready to start assessment!', 'success');
+        }
+    }
+
+    disableStartAssessmentIfNotReady() {
+        const cameraActive = document.getElementById('camera-status').classList.contains('active');
+        const micActive = document.getElementById('mic-status').classList.contains('active');
+        if (!cameraActive || !micActive) {
+            document.getElementById('start-assessment').disabled = true;
         }
     }
 
@@ -492,8 +573,10 @@ class TeacherAssessmentPlatform {
         };
         
         this.isAssessmentRunning = true;
+        this.isAssessmentPaused = false;
         this.startTime = Date.now();
         this.assessmentData.startTime = this.startTime;
+        this.elapsedBeforePause = 0;
         
         // Generate unique assessment ID
         this.currentAssessmentId = 'assessment_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -517,8 +600,7 @@ class TeacherAssessmentPlatform {
     startTimer() {
         this.assessmentTimer = setInterval(() => {
             if (!this.isAssessmentRunning) return;
-            
-            const elapsed = Date.now() - this.startTime;
+            const elapsed = this.elapsedBeforePause + (Date.now() - this.startTime);
             const minutes = Math.floor(elapsed / 60000);
             const seconds = Math.floor((elapsed % 60000) / 1000);
             
@@ -723,14 +805,41 @@ class TeacherAssessmentPlatform {
     }
 
     pauseAssessment() {
-        this.isAssessmentRunning = false;
-        if (this.metricsInterval) clearInterval(this.metricsInterval);
-        if (this.assessmentTimer) clearInterval(this.assessmentTimer);
-        this.showNotification('Assessment paused', 'warning');
+        const pauseBtn = document.getElementById('pause-assessment');
+        if (this.isAssessmentRunning && !this.isAssessmentPaused) {
+            // Pause
+            this.isAssessmentPaused = true;
+            this.isAssessmentRunning = false;
+            this.elapsedBeforePause += (Date.now() - this.startTime);
+            if (this.metricsInterval) clearInterval(this.metricsInterval);
+            if (this.assessmentTimer) clearInterval(this.assessmentTimer);
+            if (pauseBtn) {
+                pauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Resume</span>';
+                pauseBtn.classList.remove('danger');
+                pauseBtn.classList.add('success');
+            }
+            this.showNotification('Assessment paused', 'warning');
+        } else if (!this.isAssessmentRunning && this.isAssessmentPaused) {
+            // Resume
+            this.isAssessmentPaused = false;
+            this.isAssessmentRunning = true;
+            this.startTime = Date.now();
+            this.startTimer();
+            this.analyzeAudio();
+            this.simulateFacialExpressions();
+            this.simulateTeachingMetrics();
+            if (pauseBtn) {
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+                pauseBtn.classList.remove('success');
+                pauseBtn.classList.add('danger');
+            }
+            this.showNotification('Assessment resumed', 'success');
+        }
     }
 
     async stopAssessment() {
         this.isAssessmentRunning = false;
+        this.isAssessmentPaused = false;
         this.assessmentData.endTime = Date.now();
         this.assessmentData.duration = this.assessmentData.endTime - this.assessmentData.startTime;
         
@@ -749,6 +858,11 @@ class TeacherAssessmentPlatform {
         
         this.showSection('results');
         this.updateActiveSidebarLink(document.querySelector('[data-section="results"]'));
+        // Reset pause button label for next run
+        const pauseBtn = document.getElementById('pause-assessment');
+        if (pauseBtn) {
+            pauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        }
         
         this.showNotification('Assessment completed! Report generated.', 'success');
     }
@@ -794,7 +908,13 @@ class TeacherAssessmentPlatform {
         }
         
         const statusElement = document.getElementById('eligibility-status');
-        statusElement.innerHTML = `<span class="status-text" style="color: var(--${statusClass}-color);">${statusText}</span>`;
+        statusElement.innerHTML = `<span class=\"status-text\">${statusText}</span>`;
+        // Apply color-coded classes to results section
+        const resultsSection = document.getElementById('results-section');
+        if (resultsSection) {
+            resultsSection.classList.remove('status-success', 'status-warning', 'status-danger');
+            resultsSection.classList.add(`status-${statusClass}`);
+        }
         
         this.updateProgressBar('confidence-progress', this.assessmentData.voiceMetrics.confidence);
         document.getElementById('confidence-score').textContent = this.assessmentData.voiceMetrics.confidence.toFixed(1);
@@ -874,7 +994,92 @@ class TeacherAssessmentPlatform {
         allAssessments.push(reportData);
         localStorage.setItem('teacherAssessments', JSON.stringify(allAssessments));
         
-        // Download as JSON file
+        try {
+            // Generate PDF using jsPDF
+            const { jsPDF } = window.jspdf || {};
+            if (jsPDF) {
+                const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+                const margin = 48;
+                let y = margin;
+
+                // Header
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(18);
+                doc.text('TeacherEval Assessment Report', margin, y);
+                y += 24;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(11);
+                const userName = (this.currentUser && this.currentUser.name) ? this.currentUser.name : 'Unknown User';
+                doc.text(`User: ${userName}`, margin, y);
+                y += 16;
+                doc.text(`Date: ${new Date(reportData.assessmentDate).toLocaleString()}`, margin, y);
+                y += 24;
+
+                // Summary Section
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(14);
+                doc.text('Summary', margin, y);
+                y += 16;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                doc.text(`Teacher: ${reportData.teacherInfo?.name || '-'}`, margin, y); y += 16;
+                doc.text(`Institution: ${reportData.teacherInfo?.institution || '-'}`, margin, y); y += 16;
+                doc.text(`Subject: ${reportData.teacherInfo?.subject || '-'}`, margin, y); y += 16;
+                doc.text(`Overall Score: ${reportData.overallScore}`, margin, y); y += 16;
+                doc.text(`Eligibility: ${reportData.eligibilityStatus}`, margin, y); y += 24;
+
+                // Detailed Scores
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(14);
+                doc.text('Detailed Scores', margin, y);
+                y += 16;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                const voice = reportData.detailedMetrics.voiceMetrics;
+                const facial = reportData.detailedMetrics.facialMetrics;
+                const teaching = reportData.detailedMetrics.teachingMetrics;
+                doc.text(`Voice - Confidence: ${voice.confidence.toFixed(1)}%  Volume: ${voice.volume.toFixed(1)}%  Clarity: ${voice.clarity.toFixed(1)}%  Audibility: ${voice.audibility.toFixed(1)}%`, margin, y);
+                y += 16;
+                doc.text(`Facial - Emotion: ${facial.teacherEmotion || facial.emotion || '-'}  Engagement: ${Number(facial.engagementLevel || 0).toFixed(1)}%`, margin, y);
+                y += 16;
+                doc.text(`Teaching - Interaction: ${Number(teaching.interactionLevel || 0).toFixed(1)}%  Examples: ${Number(teaching.exampleUsage || 0).toFixed(1)}%  Student Engagement: ${Number(teaching.studentEngagement || 0).toFixed(1)}%`, margin, y);
+                y += 24;
+
+                // Recommendations
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(14);
+                doc.text('Recommendations', margin, y);
+                y += 16;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                if (reportData.recommendations.length) {
+                    reportData.recommendations.forEach(rec => {
+                        const lines = doc.splitTextToSize(`• ${rec}`, 520);
+                        doc.text(lines, margin, y);
+                        y += (lines.length * 14) + 6;
+                    });
+                } else {
+                    doc.text('No recommendations available.', margin, y); y += 16;
+                }
+
+                // Footer
+                y = Math.max(y, 760);
+                doc.setDrawColor(200);
+                doc.line(margin, y, 595 - margin, y);
+                y += 16;
+                doc.setFontSize(10);
+                doc.text('Generated by TeacherEval', margin, y);
+
+                doc.save(`teacher-assessment-report-${Date.now()}.pdf`);
+                this.showNotification('PDF report generated!', 'success');
+                return;
+            }
+        } catch (e) {
+            console.warn('PDF generation failed, falling back to JSON download.', e);
+        }
+
+        // Fallback: Download as JSON file
         const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -884,7 +1089,6 @@ class TeacherAssessmentPlatform {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
         this.showNotification('Report saved and downloaded successfully!', 'success');
     }
 
@@ -1066,4 +1270,8 @@ function toggleOtherSubject() {
 // Initialize the platform when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     window.teacherAssessment = new TeacherAssessmentPlatform();
+    // Compatibility alias for inline handlers in HTML expecting `app`
+    if (!window.app) {
+        window.app = window.teacherAssessment;
+    }
 });

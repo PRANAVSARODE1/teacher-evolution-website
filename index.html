@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Assessment Platform</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <meta name="description" content="AI-Powered Teacher Assessment Platform for evaluating teaching performance">
@@ -99,11 +99,11 @@
                 <span>TeacherEval</span>
             </div>
             <div class="nav-menu">
-                <a href="#dashboard" class="nav-link active">Dashboard</a>
-                <a href="#assessments" class="nav-link">Assessments</a>
-                <a href="#reports" class="nav-link">Reports</a>
+                <a href="#dashboard" class="nav-link active" data-section="setup">Dashboard</a>
+                <a href="#assessments" class="nav-link" data-section="live">Assessments</a>
+                <a href="#reports" class="nav-link" data-section="results">Reports</a>
                 <div class="nav-user">
-                    <img src="https://via.placeholder.com/32x32/667eea/ffffff?text=U" alt="User" class="user-avatar">
+                    <i class="fas fa-user-circle user-avatar" aria-hidden="true"></i>
                     <span class="user-name">Admin</span>
                     <button id="logout-btn" class="logout-btn" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
@@ -399,7 +399,7 @@
                         </div>
 
                         <div class="assessment-controls">
-                            <button id="pause-assessment" class="control-btn warning">
+                            <button id="pause-assessment" class="control-btn danger">
                                 <i class="fas fa-pause"></i>
                                 <span>Pause</span>
                             </button>
@@ -535,6 +535,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh"></script>
-    <script src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="/static/main.js"></script>
 </body>
 </html>

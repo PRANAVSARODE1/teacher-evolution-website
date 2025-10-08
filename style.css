@@ -281,6 +281,8 @@ body {
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
+    color: var(--primary-color);
+    font-size: 32px;
 }
 
 .user-name {
@@ -815,7 +817,7 @@ body {
     border-radius: var(--radius-lg);
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     font-size: 0.875rem;
 }
 
@@ -842,6 +844,17 @@ body {
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: var(--space-8);
+}
+
+/* Color-coded Results Number Only */
+#results-section.status-success .score-number {
+    color: var(--success-color);
+}
+#results-section.status-warning .score-number {
+    color: var(--warning-color);
+}
+#results-section.status-danger .score-number {
+    color: var(--danger-color);
 }
 
 .score-card {

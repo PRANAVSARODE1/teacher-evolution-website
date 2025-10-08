@@ -61,7 +61,7 @@ class Config:
     CERT_FILE = 'server.crt'
     KEY_FILE = 'server.key'
     DATABASE_FILE = 'assessments.db'
-    LOG_LEVEL = logging.INFO
+    LOG_LEVEL = "INFO"
     
     # AI Configuration
     CONFIDENCE_THRESHOLD = 0.7
@@ -74,8 +74,17 @@ class Config:
     PING_TIMEOUT = 10
 
 # Logging setup
+def _resolve_log_level(level_value):
+    """Return an int log level from a string like 'INFO' or an int value."""
+    if isinstance(level_value, int):
+        return level_value
+    try:
+        return getattr(logging, str(level_value).upper(), logging.INFO)
+    except Exception:
+        return logging.INFO
+
 logging.basicConfig(
-    level=Config.LOG_LEVEL,
+    level=_resolve_log_level(Config.LOG_LEVEL),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('server.log'),
@@ -808,10 +817,10 @@ async def main():
     # Update config
     Config.PORT = args.port
     Config.HOST = args.host
-    Config.LOG_LEVEL = getattr(logging, args.log_level.upper())
+    Config.LOG_LEVEL = args.log_level.upper()
     
     # Set logging level
-    logging.getLogger().setLevel(Config.LOG_LEVEL)
+    logging.getLogger().setLevel(_resolve_log_level(Config.LOG_LEVEL))
     
     logger.info("🚀 Starting Enhanced Teacher Assessment Platform Server")
     logger.info("=" * 60)
@@ -835,7 +844,7 @@ async def main():
                 app=app,
                 host=Config.HOST,
                 port=Config.PORT,
-                log_level=Config.LOG_LEVEL.lower()
+                log_level=str(Config.LOG_LEVEL).lower()
             )
         else:
             logger.info(f"🔒 Starting HTTPS server on https://{Config.HOST}:{Config.PORT}")
@@ -845,7 +854,7 @@ async def main():
                 port=Config.PORT,
                 ssl_keyfile=Config.KEY_FILE,
                 ssl_certfile=Config.CERT_FILE,
-                log_level=Config.LOG_LEVEL.lower()
+                log_level=str(Config.LOG_LEVEL).lower()
             )
         
         server = uvicorn.Server(config)
