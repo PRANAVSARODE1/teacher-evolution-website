@@ -11,6 +11,86 @@
     <meta name="keywords" content="teacher assessment, education, AI, teaching evaluation">
 </head>
 <body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>TeacherEval</h1>
+                    <p>AI-Powered Teacher Assessment Platform</p>
+                </div>
+                
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-id">User ID</label>
+                        <input type="text" id="login-id" placeholder="Enter your user ID" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <button type="submit" class="auth-btn primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="#" id="show-register">Create one</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Screen -->
+    <div id="register-screen" class="auth-screen" style="display: none;">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <i class="fas fa-user-plus"></i>
+                    <h1>Create Account</h1>
+                    <p>Join TeacherEval Platform</p>
+                </div>
+                
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="register-name">Full Name</label>
+                        <input type="text" id="register-name" placeholder="Enter your full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" placeholder="Create a password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-confirm-password">Confirm Password</label>
+                        <input type="password" id="register-confirm-password" placeholder="Confirm your password" required>
+                    </div>
+                    
+                    <button type="submit" class="auth-btn primary">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Create Account</span>
+                    </button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application (Hidden initially) -->
+    <div id="main-app" style="display: none;">
     <!-- Navigation Header -->
     <nav class="navbar">
         <div class="nav-container">
@@ -25,6 +105,9 @@
                 <div class="nav-user">
                     <img src="https://via.placeholder.com/32x32/667eea/ffffff?text=U" alt="User" class="user-avatar">
                     <span class="user-name">Admin</span>
+                    <button id="logout-btn" class="logout-btn" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -426,6 +509,18 @@
                         <button id="new-assessment" class="action-btn secondary">
                             <i class="fas fa-plus"></i>
                             <span>New Assessment</span>
+                        </button>
+                        <button id="view-stored" class="action-btn info" onclick="app.viewStoredAssessments()">
+                            <i class="fas fa-database"></i>
+                            <span>View Stored</span>
+                        </button>
+                        <button id="view-offline" class="action-btn warning" onclick="app.viewOfflineData()">
+                            <i class="fas fa-wifi"></i>
+                            <span>Offline Data</span>
+                        </button>
+                        <button id="manual-sync" class="action-btn success" onclick="app.manualSync()">
+                            <i class="fas fa-sync"></i>
+                            <span>Sync Now</span>
                         </button>
                     </div>
                 </div>

@@ -3,6 +3,8 @@ class TeacherAssessmentPlatform {
     constructor() {
         this.isAssessmentRunning = false;
         this.assessmentData = {
+            teacherInfo: null,
+            criteria: null,
             voiceMetrics: { confidence: 0, volume: 0, clarity: 0, audibility: 0 },
             facialMetrics: { teacherEmotion: 'neutral', engagementLevel: 0, expressionVariety: 0 },
             teachingMetrics: { interactionLevel: 0, exampleUsage: 0, studentEngagement: 0 },
@@ -13,12 +15,250 @@ class TeacherAssessmentPlatform {
         this.audioContext = null;
         this.analyser = null;
         this.microphone = null;
+        
+        // Offline sync functionality
+        this.isOnline = navigator.onLine;
+        this.offlineData = JSON.parse(localStorage.getItem('offlineAssessmentData') || '[]');
+        this.currentAssessmentId = null;
+        
+        // Authentication
+        this.currentUser = null;
+        this.users = JSON.parse(localStorage.getItem('users') || '[]');
+        
+        // Listen for online/offline events
+        window.addEventListener('online', () => this.handleOnline());
+        window.addEventListener('offline', () => this.handleOffline());
+        
+        // Auto-sync when coming online
+        if (this.isOnline && this.offlineData.length > 0) {
+            this.syncOfflineData();
+        }
         this.faceDetectionModel = null;
         this.assessmentTimer = null;
         this.startTime = null;
         
+        this.initializeAuthentication();
         this.initializeEventListeners();
         this.initializeOfflineMode();
+    }
+
+    initializeAuthentication() {
+        // Check if user is already logged in
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            this.showMainApp();
+            return;
+        }
+
+        // Show login screen
+        this.showLoginScreen();
+        this.setupAuthEventListeners();
+    }
+
+    setupAuthEventListeners() {
+        // Login form
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleLogin();
+        });
+
+        // Registration form
+        document.getElementById('register-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleRegistration();
+        });
+
+        // Toggle between login and registration
+        document.getElementById('show-register').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showRegisterScreen();
+        });
+
+        document.getElementById('show-login').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showLoginScreen();
+        });
+    }
+
+    showLoginScreen() {
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('register-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'none';
+    }
+
+    showRegisterScreen() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('register-screen').style.display = 'flex';
+        document.getElementById('main-app').style.display = 'none';
+    }
+
+    showMainApp() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('register-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        
+        // Update user info in navbar
+        if (this.currentUser) {
+            const userNameElement = document.querySelector('.user-name');
+            if (userNameElement) {
+                userNameElement.textContent = this.currentUser.name;
+            }
+        }
+    }
+
+    async handleLogin() {
+        const userId = document.getElementById('login-id').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+
+        if (!userId || !password) {
+            this.showNotification('Please fill in all fields', 'error');
+            return;
+        }
+
+        try {
+            // Try backend authentication first
+            const response = await fetch('http://localhost:8080/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: userId,
+                    password: password
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.currentUser = {
+                    id: data.user.id,
+                    name: data.user.email, // Backend doesn't return name, use email
+                    email: data.user.email,
+                    role: data.user.role,
+                    token: data.access_token
+                };
+                localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                localStorage.setItem('authToken', data.access_token);
+                this.showMainApp();
+                this.showNotification(`Welcome back, ${this.currentUser.name}!`, 'success');
+                return;
+            }
+        } catch (error) {
+            console.log('Backend login failed, trying local storage:', error);
+        }
+
+        // Fallback to local storage authentication
+        const user = this.users.find(u => u.id === userId || u.email === userId);
+        
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
+        }
+
+        if (user.password !== password) {
+            this.showNotification('Invalid password', 'error');
+            return;
+        }
+
+        // Login successful
+        this.currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        this.showMainApp();
+        this.showNotification(`Welcome back, ${user.name}!`, 'success');
+    }
+
+    async handleRegistration() {
+        const name = document.getElementById('register-name').value.trim();
+        const email = document.getElementById('register-email').value.trim();
+        const password = document.getElementById('register-password').value.trim();
+        const confirmPassword = document.getElementById('register-confirm-password').value.trim();
+
+        if (!name || !email || !password || !confirmPassword) {
+            this.showNotification('Please fill in all fields', 'error');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            this.showNotification('Passwords do not match', 'error');
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showNotification('Password must be at least 6 characters', 'error');
+            return;
+        }
+
+        try {
+            // Try backend registration first
+            const response = await fetch('http://localhost:8080/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: 'teacher' // Default role for new registrations
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.currentUser = {
+                    id: data.user_id,
+                    name: name,
+                    email: email,
+                    role: 'teacher',
+                    token: null
+                };
+                localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+                this.showMainApp();
+                this.showNotification(`Account created successfully! Welcome, ${name}!`, 'success');
+                return;
+            } else {
+                const errorData = await response.json();
+                this.showNotification(errorData.error || 'Registration failed', 'error');
+                return;
+            }
+        } catch (error) {
+            console.log('Backend registration failed, using local storage:', error);
+        }
+
+        // Fallback to local storage registration
+        // Check if user already exists
+        const existingUser = this.users.find(u => u.email === email);
+        if (existingUser) {
+            this.showNotification('User with this email already exists', 'error');
+            return;
+        }
+
+        // Create new user
+        const newUser = {
+            id: email, // Use email as ID
+            name: name,
+            email: email,
+            password: password,
+            createdAt: new Date().toISOString()
+        };
+
+        this.users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(this.users));
+
+        // Auto-login after registration
+        this.currentUser = newUser;
+        localStorage.setItem('currentUser', JSON.stringify(newUser));
+        this.showMainApp();
+        this.showNotification(`Account created successfully! Welcome, ${name}!`, 'success');
+    }
+
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('authToken');
+        this.showLoginScreen();
+        this.showNotification('Logged out successfully', 'info');
     }
 
     async initializeEventListeners() {
@@ -59,6 +299,9 @@ class TeacherAssessmentPlatform {
         // Report actions
         document.getElementById('download-report').addEventListener('click', () => this.downloadReport());
         document.getElementById('new-assessment').addEventListener('click', () => this.resetAssessment());
+        
+        // Logout button
+        document.getElementById('logout-btn').addEventListener('click', () => this.logout());
     }
 
     updateActiveNavLink(activeLink) {
@@ -190,22 +433,53 @@ class TeacherAssessmentPlatform {
     async startAssessment() {
         const teacherName = document.getElementById('teacher-name').value.trim();
         const institution = document.getElementById('institution').value.trim();
+        const subject = document.getElementById('subject').value;
+        const otherSubject = document.getElementById('other-subject')?.value || '';
+        const finalSubject = subject === 'other' ? otherSubject : subject;
+        const experience = document.getElementById('experience').value;
+        const duration = document.querySelector('.duration-btn.active')?.dataset.duration || '15';
         
         if (!teacherName || !institution) {
             this.showNotification('Please fill in all required fields (Teacher Name and Institution).', 'error');
             return;
         }
         
+        // Store assessment data
+        this.assessmentData.teacherInfo = {
+            name: teacherName,
+            institution: institution,
+            subject: finalSubject,
+            experience: experience,
+            duration: parseInt(duration)
+        };
+        
+        // Store selected criteria
+        this.assessmentData.criteria = {
+            voiceConfidence: document.getElementById('voice-confidence').checked,
+            facialExpressions: document.getElementById('facial-expressions').checked,
+            interaction: document.getElementById('interaction').checked,
+            examples: document.getElementById('examples').checked,
+            audibility: document.getElementById('audibility').checked
+        };
+        
         this.isAssessmentRunning = true;
         this.startTime = Date.now();
         this.assessmentData.startTime = this.startTime;
+        
+        // Generate unique assessment ID
+        this.currentAssessmentId = 'assessment_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
         this.showSection('live');
         this.updateActiveSidebarLink(document.querySelector('[data-section="live"]'));
         
         this.startTimer();
         this.startRealTimeAnalysis();
-        this.showNotification('Assessment started with AI analysis! Begin teaching now.', 'success');
+        
+        // Show online/offline status
+        const statusMessage = this.isOnline ? 
+            'Assessment started with AI analysis! Begin teaching now.' : 
+            'Assessment started (OFFLINE MODE). Data will sync when connection is restored.';
+        this.showNotification(statusMessage, this.isOnline ? 'success' : 'warning');
         
         this.analyzeAudio();
         this.simulateFacialExpressions();
@@ -367,7 +641,56 @@ class TeacherAssessmentPlatform {
             };
             
             this.assessmentData.timestamps.push(timestamp);
+            
+            // Store data locally (offline or online)
+            this.storeMetricsData(timestamp);
         }, 1000);
+    }
+    
+    storeMetricsData(metricsData) {
+        const dataToStore = {
+            assessmentId: this.currentAssessmentId,
+            timestamp: Date.now(),
+            data: metricsData,
+            synced: false
+        };
+        
+        if (this.isOnline) {
+            // Try to sync immediately
+            this.syncMetricsData(dataToStore);
+        } else {
+            // Store offline for later sync
+            this.offlineData.push(dataToStore);
+            localStorage.setItem('offlineAssessmentData', JSON.stringify(this.offlineData));
+            console.log('Data stored offline:', dataToStore);
+        }
+    }
+    
+    async syncMetricsData(dataToStore) {
+        try {
+            // Simulate API call to backend
+            const response = await fetch('http://localhost:8080/api/assessments/' + dataToStore.assessmentId + '/data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + (localStorage.getItem('authToken') || 'demo-token')
+                },
+                body: JSON.stringify(dataToStore.data)
+            });
+            
+            if (response.ok) {
+                dataToStore.synced = true;
+                console.log('Data synced successfully:', dataToStore);
+            } else {
+                throw new Error('Sync failed');
+            }
+        } catch (error) {
+            console.log('Sync failed, storing offline:', error);
+            // Store offline if sync fails
+            dataToStore.synced = false;
+            this.offlineData.push(dataToStore);
+            localStorage.setItem('offlineAssessmentData', JSON.stringify(this.offlineData));
+        }
     }
 
     pauseAssessment() {
@@ -505,21 +828,24 @@ class TeacherAssessmentPlatform {
     }
 
     downloadReport() {
-        const subjectValue = document.getElementById('subject').value;
-        const otherSubject = document.getElementById('other-subject')?.value || '';
-        const finalSubject = subjectValue === 'other' ? otherSubject : subjectValue;
-        
         const reportData = {
-            teacherName: document.getElementById('teacher-name').value,
-            subject: finalSubject,
-            institution: document.getElementById('institution').value,
+            teacherInfo: this.assessmentData.teacherInfo,
+            criteria: this.assessmentData.criteria,
             assessmentDate: new Date().toISOString(),
             overallScore: document.getElementById('overall-score').textContent,
             eligibilityStatus: document.getElementById('eligibility-status').textContent.trim(),
             detailedMetrics: this.assessmentData,
-            recommendations: Array.from(document.querySelectorAll('#recommendations-list li')).map(li => li.textContent)
+            recommendations: Array.from(document.querySelectorAll('#recommendations-list li')).map(li => li.textContent),
+            timestamps: this.assessmentData.timestamps,
+            duration: this.assessmentData.duration
         };
         
+        // Store in localStorage for persistence
+        const allAssessments = JSON.parse(localStorage.getItem('teacherAssessments') || '[]');
+        allAssessments.push(reportData);
+        localStorage.setItem('teacherAssessments', JSON.stringify(allAssessments));
+        
+        // Download as JSON file
         const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -530,11 +856,13 @@ class TeacherAssessmentPlatform {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        this.showNotification('Report downloaded successfully!', 'success');
+        this.showNotification('Report saved and downloaded successfully!', 'success');
     }
 
     resetAssessment() {
         this.assessmentData = {
+            teacherInfo: null,
+            criteria: null,
             voiceMetrics: { confidence: 0, volume: 0, clarity: 0, audibility: 0 },
             facialMetrics: { teacherEmotion: 'neutral', engagementLevel: 0, expressionVariety: 0 },
             teachingMetrics: { interactionLevel: 0, exampleUsage: 0, studentEngagement: 0 },
@@ -571,6 +899,103 @@ class TeacherAssessmentPlatform {
         }
         
         this.showNotification('Assessment reset. Ready for new assessment.', 'success');
+    }
+
+    viewStoredAssessments() {
+        const allAssessments = JSON.parse(localStorage.getItem('teacherAssessments') || '[]');
+        
+        if (allAssessments.length === 0) {
+            this.showNotification('No stored assessments found.', 'info');
+            return;
+        }
+        
+        // Create a simple display of stored assessments
+        let displayText = `Found ${allAssessments.length} stored assessments:\n\n`;
+        
+        allAssessments.forEach((assessment, index) => {
+            displayText += `${index + 1}. ${assessment.teacherInfo?.name || 'Unknown'} - ${assessment.teacherInfo?.institution || 'Unknown'}\n`;
+            displayText += `   Subject: ${assessment.teacherInfo?.subject || 'Unknown'}\n`;
+            displayText += `   Date: ${new Date(assessment.assessmentDate).toLocaleDateString()}\n`;
+            displayText += `   Score: ${assessment.overallScore}\n`;
+            displayText += `   Status: ${assessment.eligibilityStatus}\n\n`;
+        });
+        
+        // Show in alert (you can modify this to show in a modal)
+        alert(displayText);
+        
+        // Also log to console for debugging
+        console.log('All stored assessments:', allAssessments);
+    }
+    
+    // Offline/Online event handlers
+    handleOnline() {
+        this.isOnline = true;
+        this.showNotification('Connection restored! Syncing offline data...', 'success');
+        this.syncOfflineData();
+    }
+    
+    handleOffline() {
+        this.isOnline = false;
+        this.showNotification('Connection lost. Working in offline mode. Data will sync when connection is restored.', 'warning');
+    }
+    
+    async syncOfflineData() {
+        if (this.offlineData.length === 0) return;
+        
+        console.log('Syncing offline data:', this.offlineData.length, 'items');
+        
+        const unsyncedData = this.offlineData.filter(item => !item.synced);
+        let syncedCount = 0;
+        
+        for (const dataItem of unsyncedData) {
+            try {
+                await this.syncMetricsData(dataItem);
+                syncedCount++;
+            } catch (error) {
+                console.error('Failed to sync data item:', error);
+            }
+        }
+        
+        // Remove synced items from offline storage
+        this.offlineData = this.offlineData.filter(item => !item.synced);
+        localStorage.setItem('offlineAssessmentData', JSON.stringify(this.offlineData));
+        
+        if (syncedCount > 0) {
+            this.showNotification(`Successfully synced ${syncedCount} offline data items!`, 'success');
+        }
+    }
+    
+    // Manual sync function
+    manualSync() {
+        if (!this.isOnline) {
+            this.showNotification('No internet connection available for sync.', 'error');
+            return;
+        }
+        
+        this.syncOfflineData();
+    }
+    
+    // View offline data
+    viewOfflineData() {
+        const offlineCount = this.offlineData.length;
+        const unsyncedCount = this.offlineData.filter(item => !item.synced).length;
+        
+        let message = `Offline Data Status:\n`;
+        message += `Total offline items: ${offlineCount}\n`;
+        message += `Unsynced items: ${unsyncedCount}\n`;
+        message += `Connection status: ${this.isOnline ? 'Online' : 'Offline'}\n\n`;
+        
+        if (offlineCount > 0) {
+            message += `Assessment IDs with offline data:\n`;
+            const uniqueIds = [...new Set(this.offlineData.map(item => item.assessmentId))];
+            uniqueIds.forEach(id => {
+                const count = this.offlineData.filter(item => item.assessmentId === id).length;
+                message += `- ${id}: ${count} items\n`;
+            });
+        }
+        
+        alert(message);
+        console.log('Offline data details:', this.offlineData);
     }
 
     showNotification(message, type = 'info') {
