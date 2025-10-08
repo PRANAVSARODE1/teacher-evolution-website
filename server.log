@@ -96,3 +96,4 @@ Traceback (most recent call last):
   File "C:\Program Files\Python310\lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
     self._sock.shutdown(socket.SHUT_RDWR)
 ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2025-10-08 20:18:24,803 - __main__ - INFO - ============================================================

@@ -811,6 +811,16 @@ class TeacherAssessmentPlatform {
             this.isAssessmentPaused = true;
             this.isAssessmentRunning = false;
             this.elapsedBeforePause += (Date.now() - this.startTime);
+            // Actually pause media streams
+            try {
+                if (this.mediaStream) {
+                    this.mediaStream.getVideoTracks().forEach(track => { track.enabled = false; });
+                    this.mediaStream.getAudioTracks().forEach(track => { track.enabled = false; });
+                }
+                if (this.audioContext && this.audioContext.state === 'running') {
+                    this.audioContext.suspend();
+                }
+            } catch (e) { console.warn('Error pausing streams:', e); }
             if (this.metricsInterval) clearInterval(this.metricsInterval);
             if (this.assessmentTimer) clearInterval(this.assessmentTimer);
             if (pauseBtn) {
@@ -824,6 +834,16 @@ class TeacherAssessmentPlatform {
             this.isAssessmentPaused = false;
             this.isAssessmentRunning = true;
             this.startTime = Date.now();
+            // Resume media streams
+            try {
+                if (this.mediaStream) {
+                    this.mediaStream.getVideoTracks().forEach(track => { track.enabled = true; });
+                    this.mediaStream.getAudioTracks().forEach(track => { track.enabled = true; });
+                }
+                if (this.audioContext && this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+            } catch (e) { console.warn('Error resuming streams:', e); }
             this.startTimer();
             this.analyzeAudio();
             this.simulateFacialExpressions();

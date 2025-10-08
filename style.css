@@ -68,7 +68,7 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: var(--bg-secondary);
+    background: linear-gradient(180deg, #e3f2fd, #bbdefb);
     color: var(--text-primary);
     line-height: 1.6;
     font-size: 14px;
@@ -555,13 +555,15 @@ body {
 }
 
 .media-btn.primary {
-    background: var(--primary-color);
+    background: #1e88e5;
     color: white;
+    box-shadow: 0 6px 14px rgba(30, 136, 229, 0.25);
 }
 
 .media-btn.primary:hover:not(:disabled) {
-    background: var(--primary-dark);
+    background: #1565c0;
     transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(21, 101, 192, 0.3);
 }
 
 .media-btn:disabled {
@@ -612,7 +614,7 @@ body {
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-4) var(--space-8);
-    background: var(--success-color);
+    background: #2bb673;
     color: white;
     border: none;
     border-radius: var(--radius-lg);
@@ -620,11 +622,13 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 6px 14px rgba(43, 182, 115, 0.25);
 }
 
 .start-btn:hover:not(:disabled) {
-    background: #059669;
+    background: #229b61;
     transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(34, 155, 97, 0.3);
 }
 
 .start-btn:disabled {
@@ -831,12 +835,14 @@ body {
 }
 
 .control-btn.danger {
-    background: var(--danger-color);
+    background: #e53935;
     color: white;
+    box-shadow: 0 6px 14px rgba(229, 57, 53, 0.25);
 }
 
 .control-btn.danger:hover {
-    background: #DC2626;
+    background: #c62828;
+    box-shadow: 0 10px 20px rgba(198, 40, 40, 0.3);
 }
 
 /* Results Layout */
@@ -1017,8 +1023,18 @@ body {
     border-radius: var(--radius-lg);
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     font-size: 0.875rem;
+}
+.control-btn.success {
+    background: #2bb673;
+    color: white;
+    box-shadow: 0 6px 14px rgba(43, 182, 115, 0.25);
+}
+
+.control-btn.success:hover {
+    background: #229b61;
+    box-shadow: 0 10px 20px rgba(34, 155, 97, 0.3);
 }
 
 .action-btn.primary {
