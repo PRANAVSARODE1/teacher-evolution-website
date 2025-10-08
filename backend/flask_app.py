@@ -100,14 +100,25 @@ def register():
         data = request.get_json()
         
         # Validate required fields
-        required_fields = ['name', 'email', 'role']
+        required_fields = ['name', 'email', 'password']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Missing {field}'}), 400
         
-        # Validate role
-        if data['role'] not in ['admin', 'evaluator', 'teacher']:
-            return jsonify({'error': 'Invalid role'}), 400
+        # Validate email format
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, data['email']):
+            return jsonify({'error': 'Invalid email format'}), 400
+        
+        # Validate password strength
+        if len(data['password']) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters'}), 400
+        
+        # Set default role if not provided
+        role = data.get('role', 'teacher')
+        if role not in ['admin', 'evaluator', 'teacher']:
+            role = 'teacher'
         
         # Check if user exists
         if db and db.users.find_one({'email': data['email']}):
@@ -117,8 +128,8 @@ def register():
         user_data = {
             'name': data['name'],
             'email': data['email'],
-            'role': data['role'],
-            'password_hash': data.get('password', ''),
+            'role': role,
+            'password_hash': data['password'],  # Store password directly for demo
             'created_at': datetime.utcnow()
         }
         
@@ -128,10 +139,11 @@ def register():
         else:
             user_id = str(uuid.uuid4())
         
-        return jsonify({'success': True, 'user_id': user_id})
+        return jsonify({'success': True, 'user_id': user_id, 'message': 'Account created successfully'})
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"Registration error: {e}")
+        return jsonify({'error': f'Registration failed: {str(e)}'}), 500
 
 @app.route('/api/auth/login', methods=['POST'])
 def login():

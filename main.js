@@ -174,22 +174,35 @@ class TeacherAssessmentPlatform {
         const password = document.getElementById('register-password').value.trim();
         const confirmPassword = document.getElementById('register-confirm-password').value.trim();
 
-        if (!name || !email || !password || !confirmPassword) {
-            this.showNotification('Please fill in all fields', 'error');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            this.showNotification('Passwords do not match', 'error');
-            return;
-        }
-
-        if (password.length < 6) {
-            this.showNotification('Password must be at least 6 characters', 'error');
-            return;
-        }
+        // Show loading state
+        const submitBtn = document.querySelector('#register-form button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+        submitBtn.disabled = true;
 
         try {
+            if (!name || !email || !password || !confirmPassword) {
+                this.showNotification('Please fill in all fields', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                this.showNotification('Passwords do not match', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                this.showNotification('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            // Validate email format
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(email)) {
+                this.showNotification('Please enter a valid email address', 'error');
+                return;
+            }
+
             // Try backend registration first
             const response = await fetch('http://localhost:8080/api/auth/register', {
                 method: 'POST',
@@ -215,42 +228,58 @@ class TeacherAssessmentPlatform {
                 };
                 localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
                 this.showMainApp();
-                this.showNotification(`Account created successfully! Welcome, ${name}!`, 'success');
+                this.showNotification(`🎉 Account created successfully! Welcome, ${name}!`, 'success');
+                
+                // Clear form
+                document.getElementById('register-form').reset();
                 return;
             } else {
                 const errorData = await response.json();
-                this.showNotification(errorData.error || 'Registration failed', 'error');
+                this.showNotification(`❌ ${errorData.error || 'Registration failed'}`, 'error');
                 return;
             }
         } catch (error) {
             console.log('Backend registration failed, using local storage:', error);
+            this.showNotification('⚠️ Backend unavailable, using local storage', 'warning');
         }
 
         // Fallback to local storage registration
-        // Check if user already exists
-        const existingUser = this.users.find(u => u.email === email);
-        if (existingUser) {
-            this.showNotification('User with this email already exists', 'error');
-            return;
+        try {
+            // Check if user already exists
+            const existingUser = this.users.find(u => u.email === email);
+            if (existingUser) {
+                this.showNotification('❌ User with this email already exists', 'error');
+                return;
+            }
+
+            // Create new user
+            const newUser = {
+                id: email, // Use email as ID
+                name: name,
+                email: email,
+                password: password,
+                createdAt: new Date().toISOString()
+            };
+
+            this.users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(this.users));
+
+            // Auto-login after registration
+            this.currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            this.showMainApp();
+            this.showNotification(`🎉 Account created successfully! Welcome, ${name}!`, 'success');
+            
+            // Clear form
+            document.getElementById('register-form').reset();
+        } catch (error) {
+            this.showNotification('❌ Registration failed. Please try again.', 'error');
+            console.error('Registration error:', error);
+        } finally {
+            // Reset button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
-
-        // Create new user
-        const newUser = {
-            id: email, // Use email as ID
-            name: name,
-            email: email,
-            password: password,
-            createdAt: new Date().toISOString()
-        };
-
-        this.users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(this.users));
-
-        // Auto-login after registration
-        this.currentUser = newUser;
-        localStorage.setItem('currentUser', JSON.stringify(newUser));
-        this.showMainApp();
-        this.showNotification(`Account created successfully! Welcome, ${name}!`, 'success');
     }
 
     logout() {
